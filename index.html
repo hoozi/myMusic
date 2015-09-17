@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title></title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link href="" rel="stylesheet">
+<style>
+body{ background:#eee; color:#999; overflow:hidden;}
+			body,ul,li,img{
+				padding:0;
+				margin:0;
+			}
+			li{
+				list-style: none;
+			}
+			img{
+				border: none;
+			}
+			.container {
+				width: 100%;
+				position: absolute;
+				left: 0;
+				bottom: -10px;
+				height: 1000px;
+				overflow:hidden;
+			}
+			.container ul {
+				position: absolute;
+				left: 0;
+				bottom: 0;
+				transition: transform .4s cubic-bezier(.445,.05,.55,.95);
+			}
+			.container ul li {
+				float: left;
+				width: 13.8%;
+				position: relative;
+				transition: transform .4s cubic-bezier(.445,.05,.55,.95);
+			}
+			.container ul img{
+				width: 100%;
+				max-width: 100%;
+				height: auto;
+				position: relative;
+				will-change: transform;
+				cursor: pointer;
+				background-size:contain;
+				background-repeat:  no-repeat;
+				-webkit-transition: transform .2s cubic-bezier(0,.68,.86,.98);
+				-transition: transform .2s cubic-bezier(0,.68,.86,.98);
+			}
+			.container ul li:nth-child(1) img{
+				-webkit-transform: translate3d( 0px,63%,0px);
+		
+
+			}
+			.container ul li:nth-child(2) img{
+				-webkit-transform: translate3d( 0px,47%,0px);
+				
+			}
+			.container ul li:nth-child(3) img{
+				-webkit-transform: translate3d( 0px,67%,0px);
+		
+			}
+			.container ul li:nth-child(4) img{
+				-webkit-transform: translate3d( 0px,47%,0px);
+		
+			}
+			.container ul li:nth-child(5) img{
+				-webkit-transform: translate3d( 0px,27%,0px);
+				
+			}
+			.container ul li:nth-child(6) img{
+				-webkit-transform: translate3d( 0px,47%,0px);
+					
+			}
+			.container ul li:nth-child(7) img{
+				-webkit-transform: translate3d( 0px,61%,0px);
+			
+			}
+			
+			.container ul li.prev{
+				transform: translate3d(-13%,0,0);
+			}
+			.container ul li.next{
+				transform: translate3d(13%,0,0);
+			}
+			#zoom li:nth-child(n) img{
+				transform:translate3d(0,25%,0) !important;/* 
+				-webkit-transition: .4s !important;
+				transition:.4s !important; */
+			}
+			#zoom ul li.lager img{
+				transform:translate3d(0,15%,0) !important;/* 
+				-webkit-transition: .4s !important;
+				transition: .4s !important; */
+			}
+</style>
+<!-- 坚果手机官网http://www.smartisan.com/jianguo/#/overview图片效果 | 2015-09-17 09:11 | https://github.com/hoozi/myMusic --> 
+</head>
+<body>
+<div class="container">
+	<ul>
+		<li>
+			<img src="img/1-1.png" alt="">
+		</li>
+		<li>
+			<img src="img/2-2.png" alt="">
+		</li>
+		<li>
+			<img src="img/3-3.png" alt="">
+		</li>
+		<li>
+			<img src="img/4-4.png" alt="">
+		</li>
+		<li>
+			<img src="img/5-5.png" alt="">
+		</li>
+		<li>
+			<img src="img/6-6.png" alt="">
+		</li>
+		<li>
+			<img src="img/7-7.png" alt="">
+		</li>
+	</ul>
+</div>
+<script>
+var u = utils = {
+	toArray: function(like){
+		return Array.prototype.slice.call(like);
+	},
+	getContainer: function(){
+		return {
+			width: document.documentElement.clientWidth,
+			height: document.documentElement.clientHeight
+		}
+	},
+	css: function(){
+
+	},
+	times: function(){
+		return (new Date()).getTime()
+	},
+	getOffset: function(obj) {
+		var top = left = 0;
+		while(obj) {
+			top+= obj.offsetTop;
+			left+= obj.offsetLeft;
+			obj = obj.offsetParent;
+		}
+		return {
+			top: top,
+			left: left
+		}
+	}
+}
+var container = document.querySelectorAll(".container")[0],
+	ul = container.querySelectorAll("ul")[0],
+	lis = ul.querySelectorAll("li"),
+	imgs = ul.querySelectorAll("img"),
+	maxL,
+	slice = Array.prototype.slice,
+	timer = null,
+	times = 0,
+	imgArr = u.toArray(imgs),
+	clientX = 0,
+	canClick = true,
+	imgList = [
+				"img/1-1.png",
+				"img/2-2.png",
+				"img/3-3.png",
+				"img/4-4.png",
+				"img/5-5.png",
+				"img/6-6.png",
+				"img/7-7.png"
+			];
+
+function init(){
+	u.toArray(lis).forEach(function(li,k){
+		//计算出每个li的宽度
+		li.style.width = utils.getContainer().width/7/utils.getContainer().width*100+"%";
+		imgs[k].index = k
+	});
+	//计算出最大范围
+	maxL = utils.getContainer().width/7*5;
+}
+
+	
+
+/*function loadimg(fn) {
+	var len = 0;
+	imgList.forEach(function(img, k){
+		var imgObj = new Image();
+		imgObj.src = img;
+		imgObj.onload = function(){
+			len++;
+			if(len==imgList.length) {
+				fn()
+			}
+		}
+	})
+}*/
+
+function animation(){
+	var now = u.times();
+    imgArr.forEach(function(img){
+    	var middle = u.getOffset(img).left+img.offsetWidth/2,
+			distance = Math.abs(clientX - middle) > maxL ? maxL : Math.abs(clientX - middle),//计算出鼠标X的坐标到中心点的距离
+			scale = Math.abs(distance/maxL)*60; //当前差值/最大的范围
+        
+        //
+        var top = Math.abs(img.getBoundingClientRect().top-ul.getBoundingClientRect().top),
+        	scale2 = top/img.offsetHeight*100,
+     		scale3 = (scale-scale2)/5;
+  		scale2+=scale3;
+    	img.style.cssText = "-webkit-transform: translate3d(0,"+scale2+"%,0);transform: translate3d(0,"+scale2+"%,0);-webkit-transition:none;transition:none";
+  
+    });
+    if((now-times)<1000) {
+    	timer = requestAnimationFrame(animation);
+    }
+}
+
+function moveHandle(e) {
+ 
+    clientX = e.clientX;
+    if(timer) {
+		cancelAnimationFrame(timer);
+	}
+	
+	timer = requestAnimationFrame(animation);
+	times = u.times();
+}
+
+
+function outHandle(){
+	if(timer) {
+		cancelAnimationFrame(timer);
+	}
+	imgArr.forEach(function(img){
+		img.removeAttribute("style")
+	})
+}
+
+function clickHandle(e){
+	var target = e.target;
+	if(timer) {
+		cancelAnimationFrame(timer);
+	}
+	if(canClick) {
+		if(target.tagName.toLowerCase() === "img") {
+			var o = utils.getContainer().width / 2 - (u.getOffset(target).left + target.offsetWidth / 2);
+			container.id = "zoom";
+
+			imgArr.forEach(function(img, k){
+				img.style.transtion = "-webkit-transform .4s cubic-bezier(0,.68,.86,.98);";
+				img.style.webkitTranstion = "transform .4s cubic-bezier(0,.68,.86,.98);";
+				if(target.index>k) {
+					imgs[k].parentNode.className = "prev";
+				} else {
+					imgs[k].parentNode.className = "next";
+				}
+			})
+
+			ul.style.cssText = "-webkit-transform:translate3d("+3*o+"px,0,0) scale(3);transform:translate3d("+3*o+"px,0,0) scale(3);"
+
+			target.parentNode.className = "lager";
+
+			ul.onmousemove = ul.onmouseout = null;
+		}
+		canClick = false;
+	} else {
+		ul.removeAttribute("style");
+		imgArr.forEach(function(img, k){
+			img.parentNode.className = "";
+		})
+		container.id = "";
+		setTimeout(function (){
+			ul.onmousemove = moveHandle;
+			ul.onmouseout = outHandle;
+			canClick = true;	
+		},300)
+	}
+}
+
+init();
+
+ul.onmousemove = moveHandle;
+ul.onmouseout = outHandle;
+ul.onclick = clickHandle;
+</script>
+</body>
+</html>
